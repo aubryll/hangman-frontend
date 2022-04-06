@@ -28,12 +28,14 @@ import { NextPage } from "next";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import CustomLink from "../../components/CustomLink";
-import { Auth } from "../../hangman/api";
+import { User } from "../../hangman/api";
 
-const Signin: NextPage<{}> = () => {
-    const { trigger, watch, getValues, control } = useForm<Auth>({
+const Signup: NextPage<{}> = () => {
+    const { trigger, watch, getValues, control } = useForm<User>({
         defaultValues: {
-            username: "",
+            fName: "",
+            lName: "",
+            email: "",
             password: "",
         },
     });
@@ -63,15 +65,63 @@ const Signin: NextPage<{}> = () => {
                         <Grid container spacing={2}>
                             <Grid item xs={12} md={12}>
                                 <Typography gutterBottom variant="h4" fontWeight={"bold"}>
-                                    Sign in to your account
+                                    Create an account
                                 </Typography>
                             </Grid>
                             <Grid item xs={12} md={12}>
                                 <Divider />
                             </Grid>
+                            <Grid item xs={12} md={6}>
+                                <Controller
+                                    name="fName"
+                                    control={control}
+                                    rules={{
+                                        required: "Enter your first name",
+                                    }}
+                                    render={({
+                                        field: { onChange, value },
+                                        fieldState: { error },
+                                    }) => (
+                                        <TextField
+                                            label="First name"
+                                            placeholder="Enter your first name"
+                                            fullWidth
+                                            variant="standard"
+                                            value={value}
+                                            error={!!error}
+                                            helperText={error ? error.message : null}
+                                            onChange={onChange}
+                                        />
+                                    )}
+                                />
+                            </Grid>
+                            <Grid item xs={12} md={6}>
+                                <Controller
+                                    name="lName"
+                                    control={control}
+                                    rules={{
+                                        required: "Enter your last name",
+                                    }}
+                                    render={({
+                                        field: { onChange, value },
+                                        fieldState: { error },
+                                    }) => (
+                                        <TextField
+                                            label="Last name"
+                                            placeholder="Enter your last name"
+                                            fullWidth
+                                            variant="standard"
+                                            value={value}
+                                            error={!!error}
+                                            helperText={error ? error.message : null}
+                                            onChange={onChange}
+                                        />
+                                    )}
+                                />
+                            </Grid>
                             <Grid item xs={12} md={12}>
                                 <Controller
-                                    name="username"
+                                    name="email"
                                     control={control}
                                     rules={{
                                         required: "Enter your email address",
@@ -162,8 +212,8 @@ const Signin: NextPage<{}> = () => {
                 
                                 >
                                     <Typography variant="body2" sx={{alignSelf: "center"}}>
-                                        Don't have an account?{' '}
-                                        <CustomLink href={`/signup`} name={"Sign up"} />
+                                        Already have an account?{' '}
+                                        <CustomLink href={`/signin`} name={"Sign In"} />
                                     </Typography>
                                     <LoadingButton
                                         variant="contained"
@@ -175,7 +225,7 @@ const Signin: NextPage<{}> = () => {
                                             },
                                         }}
                                     >
-                                        Sign in
+                                       Create account
                                     </LoadingButton>
                                 </Stack>
                             </Grid>
@@ -187,4 +237,4 @@ const Signin: NextPage<{}> = () => {
     );
 };
 
-export default Signin;
+export default Signup;
