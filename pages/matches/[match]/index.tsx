@@ -50,10 +50,10 @@ const Match: NextPage<{}> = () => {
     const isFetching = useIsFetching();
     const isMutating = useIsMutating();
 
+    //API
     const { data: apiMatch, error: matchError } = useMatch(Number(match));
     const { data: apiWord, error: wordError } = useWord(apiMatch?.payload.wordId);
     const { mutate } = useMatchUpdate({
-        onError: () => {},
         onSuccess: () => {
             queryClient.invalidateQueries("match");
         },
@@ -63,8 +63,8 @@ const Match: NextPage<{}> = () => {
         mutate({
             userId: "1",
             guessedLetter: letter,
-            id: apiMatch?.payload.id
-        })
+            id: apiMatch?.payload.id,
+        });
     };
 
     const guessWord = () =>
@@ -79,12 +79,10 @@ const Match: NextPage<{}> = () => {
                 key={idx}
                 disabled={
                     apiMatch?.payload.userEnteredInputs.includes(letter) ||
-                    isFetching > 0 ||
-                    isMutating > 0 ||
                     apiMatch?.payload.status !== "PLAYING"
                 }
                 onClick={() => {
-                    handleGuess(letter);
+                    if (isFetching === 0 && isMutating === 0) handleGuess(letter);
                 }}
             >
                 {letter}
