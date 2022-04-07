@@ -12,8 +12,8 @@ import {
     Toolbar,
 } from "@mui/material";
 import Image from "next/image";
-import { useMatch, useWord } from "../../../hangman/api";
-import { useIsFetching, useIsMutating } from "react-query";
+import { useMatch, useMatchUpdate, useWord } from "../../../hangman/api";
+import { useIsFetching, useIsMutating, useQueryClient } from "react-query";
 import { green, red } from "@mui/material/colors";
 
 const KeyboardButton = styled(Button)({
@@ -45,14 +45,27 @@ const KeyboardButton = styled(Button)({
 const Match: NextPage<{}> = () => {
     const router = useRouter();
     const { match } = router.query;
+    const queryClient = useQueryClient();
 
     const isFetching = useIsFetching();
     const isMutating = useIsMutating();
 
     const { data: apiMatch, error: matchError } = useMatch(Number(match));
     const { data: apiWord, error: wordError } = useWord(apiMatch?.payload.wordId);
+    const { mutate } = useMatchUpdate({
+        onError: () => {},
+        onSuccess: () => {
+            queryClient.invalidateQueries("match");
+        },
+    });
 
-    const handleGuess = (letter: String) => {};
+    const handleGuess = (letter: string) => {
+        mutate({
+            userId: "1",
+            guessedLetter: letter,
+            id: apiMatch?.payload.id
+        })
+    };
 
     const guessWord = () =>
         apiWord?.payload.word

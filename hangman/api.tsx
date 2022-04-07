@@ -112,3 +112,24 @@ export const useWord = (word?: number) =>
     useQuery(["word", word], () => fetchWord(word), {
         enabled: !!word,
     });
+
+//Match playing
+type MutationProps = {
+    onError?: (error?: any) => void;
+    onSuccess?: () => void;
+    onSettled?: () => void;
+};
+export interface MatchUpdatePayload {
+    userId: string;
+    guessedLetter: string;
+    id?: number;
+}
+const updateMatch = async (payload: MatchUpdatePayload) =>
+    await axiosInstance.put("/matches/update", payload).then((res) => res.data);
+
+export const useMatchUpdate = ({ onSuccess, onError, onSettled }: MutationProps) =>
+    useMutation((payload: MatchUpdatePayload) => updateMatch(payload), {
+        onError: onError,
+        onSuccess: onSuccess,
+        onSettled: onSettled,
+    });
