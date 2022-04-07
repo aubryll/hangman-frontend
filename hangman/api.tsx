@@ -6,6 +6,11 @@ export const axiosInstance = axios.create({
     baseURL: `${process.env.NEXT_PUBLIC_API_URI}/freeman-hangman`,
 });
 
+export type APIResponse = {
+    status: string,
+    message: string
+}
+
 //Auth
 export type Auth = {
     username: string;
@@ -13,11 +18,23 @@ export type Auth = {
 };
 
 export type User = {
-    fName: string;
-    lName: string;
+    name: string;
     email: string;
     password: string;
 };
+
+//Sign up
+const createUser = async (payload: User): Promise<APIResponse> =>
+    await axiosInstance.post("/users/create", payload).then((res) => res.data);
+
+export const useCreateUser = ({ onSuccess, onError, onSettled }: MutationProps) =>
+    useMutation((payload: User) => createUser(payload), {
+        onError: onError,
+        onSuccess: onSuccess,
+        onSettled: onSettled,
+    });
+
+
 
 //Paginated Matches
 export declare module PaginatedMatches {
