@@ -15,6 +15,7 @@ import Image from "next/image";
 import { useMatch, useMatchUpdate, useWord } from "../../../hangman/api";
 import { useIsFetching, useIsMutating, useQueryClient } from "react-query";
 import { green, red } from "@mui/material/colors";
+import { accessToken, userId } from "../..";
 
 const KeyboardButton = styled(Button)({
     boxShadow: "none",
@@ -61,7 +62,7 @@ const Match: NextPage<{}> = () => {
 
     const handleGuess = (letter: string) => {
         mutate({
-            userId: "1",
+            userId: `${userId}`,
             guessedLetter: letter,
             id: apiMatch?.payload.id,
         });
@@ -70,7 +71,14 @@ const Match: NextPage<{}> = () => {
     const guessWord = () =>
         apiWord?.payload.word
             .split("")
-            .map((l) => (apiMatch?.payload.userEnteredInputs.includes(l) ? l : "_"));
+            .map((l) => (apiMatch?.payload.userEnteredInputs.toLocaleLowerCase().includes(l.toLocaleLowerCase()) ? l : "_"));
+
+
+    React.useEffect(() => {
+        if(userId == 0 || accessToken.length == 0){
+            router.push("/")
+        }
+    }, [])        
 
     const keyboardButtons = () => {
         return "abcdefghijklmnopqrstuvwxyz".split("").map((letter, idx) => (
@@ -78,7 +86,7 @@ const Match: NextPage<{}> = () => {
                 variant="contained"
                 key={idx}
                 disabled={
-                    apiMatch?.payload.userEnteredInputs.includes(letter) ||
+                    apiMatch?.payload.userEnteredInputs.toLocaleLowerCase().includes(letter) ||
                     apiMatch?.payload.status !== "PLAYING"
                 }
                 onClick={() => {
@@ -129,7 +137,7 @@ const Match: NextPage<{}> = () => {
                         height={350}
                         width={350}
                         layout="fixed"
-                        src="/6.png"
+                        src={`/${apiMatch?.payload.chancesLeft}.png`}
                         priority
                     />
                     <Typography

@@ -1,9 +1,22 @@
 import axios from "axios";
 import { useQuery, useMutation, useInfiniteQuery } from "react-query";
+import { accessToken, userId } from "../pages";
+
+
 
 //Initialize axios
 export const axiosInstance = axios.create({
     baseURL: `${process.env.NEXT_PUBLIC_API_URI}/freeman-hangman`,
+});
+
+//Access token interceptor
+axiosInstance.interceptors.request.use(async (request) => {
+    if (accessToken) {
+        request.headers = {
+            Authorization: `Bearer ${accessToken}`,
+        };
+    }
+    return request;
 });
 
 export type APIResponse = {
@@ -13,15 +26,34 @@ export type APIResponse = {
 
 //Auth
 export type Auth = {
-    username: string;
+    email: string;
     password: string;
 };
+
+
+export type AuthResponse = {
+    payload: string;
+}
 
 export type User = {
     name: string;
     email: string;
     password: string;
 };
+
+//Sign in
+const signIn = async (auth: Auth): Promise<AuthResponse> =>
+    await axiosInstance.post("/auth/signin", auth).then((res) => res.data);
+
+export const useSignIn = ({ onSuccess, onError, onSettled }: MutationProps) =>
+    useMutation((auth: Auth) => signIn(auth), {
+        onError: onError,
+        onSuccess: onSuccess,
+        onSettled: onSettled,
+    });
+
+
+
 
 //Sign up
 const createUser = async (payload: User): Promise<APIResponse> =>
@@ -34,6 +66,41 @@ export const useCreateUser = ({ onSuccess, onError, onSettled }: MutationProps) 
         onSettled: onSettled,
     });
 
+
+type CreateMatchPayload = {
+    userId: number
+}
+
+export declare module CreateMatch {
+
+    export interface Payload {
+        userId: number;
+        wordId: number;
+        userEnteredInputs: string;
+        chancesLeft: number;
+        score: number;
+        id: number;
+    }
+
+    export interface Response {
+        status: string;
+        payload: Payload;
+    }
+
+}
+
+
+//Create match
+const createMatch = async(payload: CreateMatchPayload): Promise<CreateMatch.Response> =>
+await axiosInstance.post("/matches/create", payload).then((res) => res.data);  
+
+
+export const useCreateMatch = ({ onSuccess, onError, onSettled }: MutationProps) =>
+useMutation((payload: CreateMatchPayload) => createMatch(payload), {
+    onError: onError,
+    onSuccess: onSuccess,
+    onSettled: onSettled,
+});
 
 
 //Paginated Matches
@@ -65,7 +132,7 @@ export declare module PaginatedMatches {
     }
 }
 
-const fetchMatches = async ({ pageParam = "/matches/0/10" }) => {
+const fetchMatches = async ({ pageParam = `/matches/${userId}/0/10` }) => {
     const response = await axiosInstance
         .get<PaginatedMatches.MatchesResponse>(pageParam)
         .then((res) => res.data);

@@ -265,6 +265,9 @@ const Signup: NextPage<{}> = () => {
                                             <LoadingButton
                                                 onClick={handleSubmit}
                                                 variant="contained"
+                                                loading={
+                                                    isFetching > 0 || isMutating > 0
+                                                }
                                                 sx={{
                                                     width: {
                                                         sm: "100%",
