@@ -11,35 +11,28 @@ import {
     Typography,
     FormHelperText,
     Stack,
-    Alert,
-    Button,
-    Box,
-    StepLabel,
-    OutlinedInput,
     Card,
     CardContent,
     AlertColor,
-    useTheme,
-    useMediaQuery,
     Container,
     Divider,
 } from "@mui/material";
-import jwtDecode from "jwt-decode";
+import { observer } from "mobx-react-lite";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import React, { useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { useIsFetching, useIsMutating } from "react-query";
 import CustomLink from "../components/CustomLink";
+import { useAuthState } from "../components/globalStores/useAuthStore";
 import Snackbar from "../components/Snackbar";
 import { Auth, useSignIn } from "../hangman/api";
+import { setUserTokenResponse } from "../hangman/token/userTokenResponse";
 
-//temp token holder
-export let accessToken = ""
-export let userId = 0
-
-const Signin: NextPage<{}> = () => {
+const Signin: NextPage<{}> = observer(() => {
     const router = useRouter();
+    const {authState: {token}, setUserAuth} = useAuthState();
+    const returnUrl = (router.query.returnUrl || "/matches") as string;
     const { message } = router.query;
     const { trigger, watch, getValues, control } = useForm<Auth>({
         defaultValues: {
@@ -58,16 +51,30 @@ const Signin: NextPage<{}> = () => {
 
     const isFetching = useIsFetching();
     const isMutating = useIsMutating();
-    const { mutate, data, isSuccess } = useSignIn({
-        onError: () => {
+
+    const { mutate, data } = useSignIn({
+        onError(error?: any): void {
             setSnackBar({
                 ...snackBar,
                 open: true,
                 severity: "error",
-                message: data?.payload.message ?? "Incorrect credentials",
+                message: error?.payload.message ?? "Unknown error occurred, try again",
             });
-        }
+        },
     });
+
+    const handleUserAuthenticated = () => {
+        if (token) {
+            router.push(returnUrl);
+        }
+        if(data){
+            setUserTokenResponse(data.payload);
+            setUserAuth({
+                token: data.payload
+            })
+            router.push(returnUrl);
+        }
+    };
 
     const handleSubmit = async () => {
         const isValid = await trigger();
@@ -94,17 +101,8 @@ const Signin: NextPage<{}> = () => {
             router.replace("/", undefined, { shallow: true });
         }
     };
-    const handleLoginSuccess = () => {
-        if(isSuccess && data){
-            const jwt = jwtDecode(data?.payload);
-            accessToken = data.payload
-            userId = jwt.jti;
-            router.push("/matches")
-        }
-
-    }
-
-    React.useEffect(handleLoginSuccess, [isSuccess, data])
+    //TODO: might be worth looking into how to how to handle this in the AuthGuard
+    React.useEffect(handleUserAuthenticated, [token, data]);
     React.useEffect(handleSignInMessage, [message]);
 
     return (
@@ -260,9 +258,7 @@ const Signin: NextPage<{}> = () => {
                                             <LoadingButton
                                                 variant="contained"
                                                 onClick={handleSubmit}
-                                                loading={
-                                                    isFetching > 0 || isMutating > 0
-                                                }
+                                                loading={isFetching > 0 || isMutating > 0}
                                                 sx={{
                                                     width: {
                                                         sm: "100%",
@@ -283,6 +279,6 @@ const Signin: NextPage<{}> = () => {
             </>
         </form>
     );
-};
+});
 
 export default Signin;

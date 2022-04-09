@@ -3,25 +3,11 @@ import React, { useState } from "react";
 import { PaginatedMatches, useCreateMatch, useMatches } from "../../hangman/api";
 import {
     Grid,
-    TextField,
-    IconButton,
-    InputAdornment,
-    InputLabel,
-    FormControl,
-    Input,
     Typography,
-    FormHelperText,
     Stack,
-    Alert,
-    Button,
-    Box,
-    StepLabel,
-    OutlinedInput,
     Card,
     CardContent,
     AlertColor,
-    useTheme,
-    useMediaQuery,
     Container,
     Divider,
     List,
@@ -35,7 +21,6 @@ import { formatDistance } from "date-fns";
 import { green, grey, red } from "@mui/material/colors";
 import { LoadingButton } from "@mui/lab";
 import { useRouter } from "next/router";
-import { accessToken, userId } from "..";
 import Snackbar from "../../components/Snackbar";
 import { useIsFetching, useIsMutating } from "react-query";
 const Scoreboard: NextPage<{}> = () => {
@@ -60,7 +45,7 @@ const Scoreboard: NextPage<{}> = () => {
                 ...snackBar,
                 open: true,
                 severity: "error",
-                message: "Error occurred, try again",
+                message: error.payload.message ?? "Error occurred, try again",
             });
         },
     });
@@ -70,12 +55,7 @@ const Scoreboard: NextPage<{}> = () => {
     const handleMatchClciked = (id: number) => {
         router.push(`/matches/${id}`);
     };
-
-    React.useEffect(() => {
-        if (userId == 0 || accessToken.length == 0) {
-            router.push("/");
-        }
-    }, []);
+;
 
     React.useEffect(() => {
         if (newMatchData) handleMatchClciked(newMatchData.payload.id);
@@ -183,11 +163,7 @@ const Scoreboard: NextPage<{}> = () => {
                                         variant="contained"
                                         fullWidth
                                         disabled={isFetching > 0 || isMutating > 0}
-                                        onClick={() =>
-                                            mutate({
-                                                userId,
-                                            })
-                                        }
+                                        onClick={() => {mutate()}}
                                     >
                                         New game
                                     </LoadingButton>

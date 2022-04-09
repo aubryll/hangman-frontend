@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { NextPage } from "next";
 import { useRouter } from "next/router";
 import {
@@ -10,12 +10,13 @@ import {
     styled,
     AppBar,
     Toolbar,
+    AlertColor,
 } from "@mui/material";
 import Image from "next/image";
 import { useMatch, useMatchUpdate, useWord } from "../../../hangman/api";
 import { useIsFetching, useIsMutating, useQueryClient } from "react-query";
 import { green, red } from "@mui/material/colors";
-import { accessToken, userId } from "../..";
+import Snackbar from "../../../components/Snackbar";
 
 const KeyboardButton = styled(Button)({
     boxShadow: "none",
@@ -46,6 +47,13 @@ const KeyboardButton = styled(Button)({
 const Match: NextPage<{}> = () => {
     const router = useRouter();
     const { match } = router.query;
+    const [snackBar, setSnackBar] = useState<{
+        open: boolean;
+        message?: string;
+        severity?: AlertColor;
+    }>({ open: false });
+
+
     const queryClient = useQueryClient();
 
     const isFetching = useIsFetching();
@@ -55,30 +63,36 @@ const Match: NextPage<{}> = () => {
     const { data: apiMatch, error: matchError } = useMatch(Number(match));
     const { data: apiWord, error: wordError } = useWord(apiMatch?.payload.wordId);
     const { mutate } = useMatchUpdate({
-        onSuccess: () => {
+        onSuccess(): void {
             queryClient.invalidateQueries("match");
         },
+        onError(error?: any): void {
+            setSnackBar({
+                ...snackBar,
+                open: true,
+                severity: "error",
+                message: error.payload.message ?? "Error occurred, try again",
+            });
+        }
     });
 
     const handleGuess = (letter: string) => {
         mutate({
-            userId: `${userId}`,
             guessedLetter: letter,
             id: apiMatch?.payload.id,
         });
     };
 
+    const toggleSnackbar = () =>
+    setSnackBar({
+        ...snackBar,
+        open: !snackBar.open,
+    });
+
     const guessWord = () =>
         apiWord?.payload.word
             .split("")
-            .map((l) => (apiMatch?.payload.userEnteredInputs.toLocaleLowerCase().includes(l.toLocaleLowerCase()) ? l : "_"));
-
-
-    React.useEffect(() => {
-        if(userId == 0 || accessToken.length == 0){
-            router.push("/")
-        }
-    }, [])        
+            .map((l) => (apiMatch?.payload.userEnteredInputs.toLocaleLowerCase().includes(l.toLocaleLowerCase()) ? l : "_"));      
 
     const keyboardButtons = () => {
         return "abcdefghijklmnopqrstuvwxyz".split("").map((letter, idx) => (
@@ -99,6 +113,14 @@ const Match: NextPage<{}> = () => {
     };
 
     return (
+        <>
+        <Snackbar
+            open={snackBar.open}
+            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+            message={snackBar.message}
+            severity={snackBar.severity}
+            onClose={toggleSnackbar}
+        />
         <Container
             sx={{
                 paddingTop: 10,
@@ -177,6 +199,7 @@ const Match: NextPage<{}> = () => {
                 </Stack>
             </Container>
         </Container>
+        </>
     );
 };
 
