@@ -33,14 +33,15 @@ axiosInstance.interceptors.response.use(
         return response;
     },
     (error) => {
-        if (error.response.status === 500 && 
-            error?.response?.data.exception === "BadCredentialsException") {
+        if (
+            error.response.status === 500 &&
+            error?.response?.data.exception === "BadCredentialsException"
+        ) {
             removeUserTokenResponse();
         }
         Promise.reject(error?.response?.data);
     }
 );
-
 
 axiosInstance.interceptors.response.use(
     (response) => {
@@ -54,7 +55,6 @@ axiosInstance.interceptors.response.use(
     }
 );
 
-
 axiosInstance.interceptors.response.use(
     (response) => {
         return response;
@@ -63,7 +63,6 @@ axiosInstance.interceptors.response.use(
         if (error.response.status === 401) {
             removeUserTokenResponse();
         }
-        
     }
 );
 

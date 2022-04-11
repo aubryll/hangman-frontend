@@ -31,7 +31,10 @@ import { setUserTokenResponse } from "../hangman/token/userTokenResponse";
 
 const Signin: NextPage<{}> = observer(() => {
     const router = useRouter();
-    const {authState: {token}, setUserAuth} = useAuthState();
+    const {
+        authState: { token },
+        setUserAuth,
+    } = useAuthState();
     const returnUrl = (router.query.returnUrl || "/matches") as string;
     const { message } = router.query;
     const { trigger, watch, getValues, control } = useForm<Auth>({
@@ -67,11 +70,11 @@ const Signin: NextPage<{}> = observer(() => {
         if (token) {
             router.push(returnUrl);
         }
-        if(data){
+        if (data) {
             setUserTokenResponse(data.payload);
             setUserAuth({
-                token: data.payload
-            })
+                token: data.payload,
+            });
             router.push(returnUrl);
         }
     };

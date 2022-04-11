@@ -53,7 +53,6 @@ const Match: NextPage<{}> = () => {
         severity?: AlertColor;
     }>({ open: false });
 
-
     const queryClient = useQueryClient();
 
     const isFetching = useIsFetching();
@@ -73,7 +72,7 @@ const Match: NextPage<{}> = () => {
                 severity: "error",
                 message: error.payload.message ?? "Error occurred, try again",
             });
-        }
+        },
     });
 
     const handleGuess = (letter: string) => {
@@ -84,15 +83,21 @@ const Match: NextPage<{}> = () => {
     };
 
     const toggleSnackbar = () =>
-    setSnackBar({
-        ...snackBar,
-        open: !snackBar.open,
-    });
+        setSnackBar({
+            ...snackBar,
+            open: !snackBar.open,
+        });
 
     const guessWord = () =>
         apiWord?.payload.word
             .split("")
-            .map((l) => (apiMatch?.payload.userEnteredInputs.toLocaleLowerCase().includes(l.toLocaleLowerCase()) ? l : "_"));      
+            .map((l) =>
+                apiMatch?.payload.userEnteredInputs
+                    .toLocaleLowerCase()
+                    .includes(l.toLocaleLowerCase())
+                    ? l
+                    : "_"
+            );
 
     const keyboardButtons = () => {
         return "abcdefghijklmnopqrstuvwxyz".split("").map((letter, idx) => (
@@ -100,8 +105,9 @@ const Match: NextPage<{}> = () => {
                 variant="contained"
                 key={idx}
                 disabled={
-                    apiMatch?.payload.userEnteredInputs.toLocaleLowerCase().includes(letter) ||
-                    apiMatch?.payload.status !== "PLAYING"
+                    apiMatch?.payload.userEnteredInputs
+                        .toLocaleLowerCase()
+                        .includes(letter) || apiMatch?.payload.status !== "PLAYING"
                 }
                 onClick={() => {
                     if (isFetching === 0 && isMutating === 0) handleGuess(letter);
@@ -114,91 +120,93 @@ const Match: NextPage<{}> = () => {
 
     return (
         <>
-        <Snackbar
-            open={snackBar.open}
-            anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-            message={snackBar.message}
-            severity={snackBar.severity}
-            onClose={toggleSnackbar}
-        />
-        <Container
-            sx={{
-                paddingTop: 10,
-                paddingBottom: 10,
-            }}
-        >
-            <AppBar elevation={0}>
-                <Toolbar>
-                    <Typography variant="overline">Hangman</Typography>
-                    <Box sx={{ flex: 1 }} />
-                    <Typography variant="overline">{`CHANCES LEFT: ${
-                        apiMatch?.payload.chancesLeft ?? 0
-                    }`}</Typography>
-                </Toolbar>
-            </AppBar>
-            <Container maxWidth="md">
-                <Stack
-                    direction="column"
-                    alignItems="center"
-                    justifyContent="center"
-                    spacing={4}
-                    sx={{
-                        mt: {
-                            md: 5,
-                            sm: 2,
-                            xs: 2,
-                        },
-                        mb: {
-                            md: 5,
-                            sm: 2,
-                            xs: 2,
-                        },
-                    }}
-                >
-                    <Image
-                        height={350}
-                        width={350}
-                        layout="fixed"
-                        src={`/${apiMatch?.payload.chancesLeft}.png`}
-                        priority
-                    />
-                    <Typography
-                        gutterBottom
-                        color="secondary"
-                        fontWeight={"bold"}
+            <Snackbar
+                open={snackBar.open}
+                anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                message={snackBar.message}
+                severity={snackBar.severity}
+                onClose={toggleSnackbar}
+            />
+            <Container
+                sx={{
+                    paddingTop: 10,
+                    paddingBottom: 10,
+                }}
+            >
+                <AppBar elevation={0}>
+                    <Toolbar>
+                        <Typography variant="overline">Hangman</Typography>
+                        <Box sx={{ flex: 1 }} />
+                        <Typography variant="overline">{`CHANCES LEFT: ${
+                            apiMatch?.payload.chancesLeft ?? 0
+                        }`}</Typography>
+                    </Toolbar>
+                </AppBar>
+                <Container maxWidth="md">
+                    <Stack
+                        direction="column"
+                        alignItems="center"
+                        justifyContent="center"
+                        spacing={4}
                         sx={{
-                            letterSpacing: "2rem",
-                            margin: "0.4em -1em 0.2em 0",
-                            fontSize: "2.5rem",
+                            mt: {
+                                md: 5,
+                                sm: 2,
+                                xs: 2,
+                            },
+                            mb: {
+                                md: 5,
+                                sm: 2,
+                                xs: 2,
+                            },
                         }}
                     >
-                        {apiMatch?.payload.status === "PLAYING"
-                            ? guessWord()
-                            : apiWord?.payload.word}
-                    </Typography>
-
-                    {apiMatch?.payload.status !== "PLAYING" && (
+                        <Image
+                            height={350}
+                            width={350}
+                            layout="fixed"
+                            src={`/${apiMatch?.payload.chancesLeft}.png`}
+                            priority
+                        />
                         <Typography
-                            variant="h4"
+                            gutterBottom
+                            color="secondary"
                             fontWeight={"bold"}
-                            color={
-                                apiMatch?.payload.status === "WON" ? green[500] : red[500]
-                            }
+                            sx={{
+                                letterSpacing: "2rem",
+                                margin: "0.4em -1em 0.2em 0",
+                                fontSize: "2.5rem",
+                            }}
                         >
-                            {apiMatch?.payload.status}
+                            {apiMatch?.payload.status === "PLAYING"
+                                ? guessWord()
+                                : apiWord?.payload.word}
                         </Typography>
-                    )}
 
-                    <Typography
-                        sx={{
-                            textAlign: "center",
-                        }}
-                    >
-                        {keyboardButtons()}
-                    </Typography>
-                </Stack>
+                        {apiMatch?.payload.status !== "PLAYING" && (
+                            <Typography
+                                variant="h4"
+                                fontWeight={"bold"}
+                                color={
+                                    apiMatch?.payload.status === "WON"
+                                        ? green[500]
+                                        : red[500]
+                                }
+                            >
+                                {apiMatch?.payload.status}
+                            </Typography>
+                        )}
+
+                        <Typography
+                            sx={{
+                                textAlign: "center",
+                            }}
+                        >
+                            {keyboardButtons()}
+                        </Typography>
+                    </Stack>
+                </Container>
             </Container>
-        </Container>
         </>
     );
 };

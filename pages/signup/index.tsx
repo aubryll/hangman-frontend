@@ -44,7 +44,7 @@ const Signup: NextPage<{}> = () => {
                 ...snackBar,
                 open: true,
                 severity: "error",
-                message: error?.payload?.message ?? "Unknown error occurred, try again"
+                message: error?.payload?.message ?? "Unknown error occurred, try again",
             });
         },
         onSuccess: () => {
@@ -84,19 +84,16 @@ const Signup: NextPage<{}> = () => {
         }
     };
 
-
     return (
         <form>
             <>
- 
-                    <Snackbar
-                        open={snackBar.open}
-                        anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
-                        message={snackBar.message}
-                        severity={snackBar.severity}
-                        onClose={toggleSnackbar}
-                    />
-            
+                <Snackbar
+                    open={snackBar.open}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "center" }}
+                    message={snackBar.message}
+                    severity={snackBar.severity}
+                    onClose={toggleSnackbar}
+                />
 
                 <Container maxWidth="sm">
                     <Stack
@@ -267,9 +264,7 @@ const Signup: NextPage<{}> = () => {
                                             <LoadingButton
                                                 onClick={handleSubmit}
                                                 variant="contained"
-                                                loading={
-                                                    isFetching > 0 || isMutating > 0
-                                                }
+                                                loading={isFetching > 0 || isMutating > 0}
                                                 sx={{
                                                     width: {
                                                         sm: "100%",

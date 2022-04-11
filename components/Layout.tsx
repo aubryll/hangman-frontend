@@ -1,4 +1,4 @@
-import React from "react"
+import React from "react";
 import { Container, CssBaseline } from "@mui/material";
 import useAuthGuard from "./auth/AuthGuard";
 

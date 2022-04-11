@@ -55,8 +55,6 @@ const Scoreboard: NextPage<{}> = () => {
     const handleMatchClciked = (id: number) => {
         router.push(`/matches/${id}`);
     };
-;
-
     React.useEffect(() => {
         if (newMatchData) handleMatchClciked(newMatchData.payload.id);
     }, [newMatchData]);
@@ -163,7 +161,9 @@ const Scoreboard: NextPage<{}> = () => {
                                         variant="contained"
                                         fullWidth
                                         disabled={isFetching > 0 || isMutating > 0}
-                                        onClick={() => {mutate()}}
+                                        onClick={() => {
+                                            mutate();
+                                        }}
                                     >
                                         New game
                                     </LoadingButton>

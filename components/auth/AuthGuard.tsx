@@ -11,7 +11,7 @@ const useAuthGuard = <T,>(Component: React.FunctionComponent<T>) =>
 
         const checkIfTokenStillExists = () => {
             const token = getUserTokenResponse();
-            setUserAuth({token});
+            setUserAuth({ token });
             if (!token && router.pathname !== "/" && router.pathname !== "/signup") {
                 router.push("/");
             }
@@ -21,7 +21,6 @@ const useAuthGuard = <T,>(Component: React.FunctionComponent<T>) =>
             const timer = setInterval(checkIfTokenStillExists, 2000);
             return () => clearInterval(timer);
         };
-
 
         React.useEffect(authenticationWatcher, []);
 
