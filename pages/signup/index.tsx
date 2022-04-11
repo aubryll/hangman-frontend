@@ -39,12 +39,12 @@ const Signup: NextPage<{}> = () => {
 
     //API Calls
     const { mutate, error } = useCreateUser({
-        onError: () => {
+        onError(error?: any): void {
             setSnackBar({
                 ...snackBar,
                 open: true,
                 severity: "error",
-                message: "User already exists",
+                message: error?.payload?.message ?? "Unknown error occurred, try again"
             });
         },
         onSuccess: () => {
@@ -83,6 +83,8 @@ const Signup: NextPage<{}> = () => {
             mutate(data);
         }
     };
+
+
     return (
         <form>
             <>

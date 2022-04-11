@@ -41,6 +41,32 @@ axiosInstance.interceptors.response.use(
     }
 );
 
+
+axiosInstance.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        if (error.response.status === 401) {
+            removeUserTokenResponse();
+        }
+        Promise.reject(error?.response?.data);
+    }
+);
+
+
+axiosInstance.interceptors.response.use(
+    (response) => {
+        return response;
+    },
+    (error) => {
+        if (error.response.status === 401) {
+            removeUserTokenResponse();
+        }
+        
+    }
+);
+
 //Proxy axios instance for login
 export const proxyAxiosInstance = axios.create({
     baseURL: "http://localhost:3000",

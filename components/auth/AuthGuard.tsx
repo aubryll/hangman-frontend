@@ -12,13 +12,8 @@ const useAuthGuard = <T,>(Component: React.FunctionComponent<T>) =>
         const checkIfTokenStillExists = () => {
             const token = getUserTokenResponse();
             setUserAuth({token});
-            if (!token && router.pathname !== "/") {
-                router.push({
-                    pathname: "/",
-                    query: {
-                        returnUrl: router.asPath,
-                    },
-                });
+            if (!token && router.pathname !== "/" && router.pathname !== "/signup") {
+                router.push("/");
             }
         };
 
